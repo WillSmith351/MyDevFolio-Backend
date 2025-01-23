@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  username       String    @unique
+  firstName      String
+  lastName       String
+  email          String    @unique
+  password       String
+  bio            String?
+  jobTitle       String?
+  profilePicture String?
+  role           Role      @default(USER)
+  links          Link[]    @relation("SocialLinks")
+  projects       Project[] @relation("UserProjects")
+  settings       Setting?
+  analytics      Analytic?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Link {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  plateform String
+  url       String
+  user      User   @relation("SocialLinks", fields: [userId], references: [id])
+  userId    String @db.ObjectId
+}
+
+model Project {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  description       String
+  image             String[]
+  video             String?
+  technologies      String[]
+  user              User            @relation("UserProjects", fields: [userId], references: [id])
+  userId            String          @db.ObjectId
+  projectLink       ProjectLink     @relation(fields: [projectLinkId], references: [id])
+  projectLinkId     String          @unique @db.ObjectId
+  projectanalytics  ProjectAnalytic @relation(fields: [projectAnalyticId], references: [id])
+  projectAnalyticId String          @unique @db.ObjectId
+  createdAt         DateTime        @default(now())
+  updatedat         DateTime        @updatedAt
+}
+
+model ProjectLink {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  repo     String
+  liveDemo String
+  project  Project? @relation
+}
+
+model ProjectAnalytic {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  totalFavorite Int      @default(0)
+  totalUpVotes  Int      @default(0)
+  Project       Project? @relation
+}
+
+model Setting {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  visibility Boolean @default(true)
+  user       User    @relation(fields: [userId], references: [id])
+  userId     String  @unique @db.ObjectId
+}
+
+model Analytic {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  userVisited Int
+  User        User?   @relation(fields: [userId], references: [id])
+  userId      String? @unique @db.ObjectId
+}
+
+enum Role {
+  USER
+  ADMIN
+}
