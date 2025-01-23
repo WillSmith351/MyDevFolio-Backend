@@ -1,0 +1,32 @@
+services:
+  mydevfolio-api:
+    container_name: mydevfolio-api
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mydevfolio-db
+    networks:
+      - mydevfolio-networks
+
+  mydevfolio-db:
+    image: mongo
+    container_name: mydevfolio-db
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - mydevfolio-networks
+
+volumes:
+  mongodata:
+    driver: local
+
+networks:
+  mydevfolio-networks:
