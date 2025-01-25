@@ -24,45 +24,35 @@ model User {
   analytics      Analytic?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  @@index([username, email])
 }
 
 model Link {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  plateform String
-  url       String
-  user      User   @relation("SocialLinks", fields: [userId], references: [id])
-  userId    String @db.ObjectId
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  platform String
+  url      String
+  user     User   @relation("SocialLinks", fields: [userId], references: [id])
+  userId   String @db.ObjectId
+
+  @@unique([platform, userId])
 }
 
 model Project {
-  id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  description       String
-  image             String[]
-  video             String?
-  technologies      String[]
-  user              User            @relation("UserProjects", fields: [userId], references: [id])
-  userId            String          @db.ObjectId
-  projectLink       ProjectLink     @relation(fields: [projectLinkId], references: [id])
-  projectLinkId     String          @unique @db.ObjectId
-  projectanalytics  ProjectAnalytic @relation(fields: [projectAnalyticId], references: [id])
-  projectAnalyticId String          @unique @db.ObjectId
-  createdAt         DateTime        @default(now())
-  updatedat         DateTime        @updatedAt
-}
-
-model ProjectLink {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  repo     String
-  liveDemo String
-  project  Project? @relation
-}
-
-model ProjectAnalytic {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  image         String[]
+  video         String?
+  technologies  String[]
+  repo          String
+  liveDemo      String
   totalFavorite Int      @default(0)
   totalUpVotes  Int      @default(0)
-  Project       Project? @relation
+  user          User     @relation("UserProjects", fields: [userId], references: [id])
+  userId        String   @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedat     DateTime @updatedAt
 }
 
 model Setting {
